@@ -1,0 +1,111 @@
+[tool.poetry]
+name = "naia"
+version = "0.1.0"
+description = ""
+authors = ["Kyle MacMillan <kyle.w.macmillan@gmail.com>"]
+readme = "README.md"
+
+
+[tool.poetry.dependencies]
+python = "^3.12"
+aiobotocore = "*"
+aiohttp = "*"
+fastapi = "*"
+gunicorn = "*"
+itsdangerous = "*"
+tenacity = "*"
+ujson = "*"
+uvicorn = {extras = ["standard"], version = "*"}
+
+
+[tool.poetry.group.docs]
+optional = true
+[tool.poetry.group.docs.dependencies]
+mkdocs = "*"
+mkdocstrings = {extras = ["python"], version = "*"}
+mkdocs-material = "*"
+mkdocs-gen-files = "*"
+mkdocs-literate-nav = "*"
+
+[tool.poetry.group.static_tools]
+optional = true
+[tool.poetry.group.static_tools.dependencies]
+mypy = "*"
+ruff = "*"
+
+# Any test involving external calls (boto3, requests, etc.)
+[tool.poetry.group.integration_test]
+optional = true
+[tool.poetry.group.integration_test.dependencies]
+pytest = "*"
+
+# Unit and internal integration white-box tests
+[tool.poetry.group.non_integration_test]
+optional = true
+[tool.poetry.group.non_integration_test.dependencies]
+pytest = "*"
+
+
+[tool.mypy]
+strict = true
+
+
+[tool.ruff]
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+]
+
+line-length = 120
+indent-width = 4
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["C901", "E4", "E7", "E9", "F", "I", "W"]
+ignore = []
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.mccabe]
+# 5 to limit test complexity
+max-complexity = 5
+
+[tool.ruff.format]
+docstring-code-format = true  # https://docs.astral.sh/ruff/settings/#format-docstring-code-format
+# docstring-code-line-length = "dynamic"  # https://docs.astral.sh/ruff/settings/#format-docstring-code-line-length
+indent-style = "space"
+line-ending = "auto"
+quote-style = "single"
+skip-magic-trailing-comma = false
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
