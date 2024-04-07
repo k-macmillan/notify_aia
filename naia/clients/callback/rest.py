@@ -5,8 +5,8 @@ from fastapi import APIRouter, status
 from pydantic import UUID4, AnyUrl, AwareDatetime, BaseModel, UrlConstraints
 from typing_extensions import Annotated, Any
 
+from naia.application.application import app
 from naia.clients.callback.handlers import CallbackLoggingRoute
-from naia.clients.callback.processing import callback_client
 
 EVENT_LOOP = None
 
@@ -80,7 +80,7 @@ async def send_callback(
 ) -> ResponseCallback:
     # Do not wait for the response
     get_event_loop().create_task(
-        callback_client.send_callback_request(
+        app.callback_client.send_callback_request(
             data.url,
             data.encrypted_token,
             data.payload,

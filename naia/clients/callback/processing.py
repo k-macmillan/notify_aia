@@ -14,7 +14,7 @@ from tenacity.retry import retry_base
 from tenacity.stop import stop_base
 from tenacity.wait import wait_base
 
-from naia.auth.encryption import decrypt
+from naia.auth.encryption import decrypt, legacy_verify
 from naia.clients.async_client import AsyncClient
 
 if TYPE_CHECKING:
@@ -45,7 +45,7 @@ class CallbackAsyncClient(AsyncClient):
         connector: Optional[aiohttp.TCPConnector] = None,
         timeout: Optional[aiohttp.ClientTimeout] = None,
     ) -> None:
-        self._salt: str = ''
+        self._legacy_salt: bytes = b''
         super().__init__(connector=connector, timeout=timeout)
 
         # Intialize retry properties
@@ -73,60 +73,61 @@ class CallbackAsyncClient(AsyncClient):
 
     def set_salt(
         self,
-        salt: str,
+        salt: bytes,
     ) -> None:
         """Sets the salt parameter"""
-        self._salt = salt
+        self._legacy_salt = salt
 
     async def send_callback_request(
         self,
         url: HttpsUrl,
         encrypted_token: str,
         payload: RequestPayload,
-        salt: str = '',
+        legacy_salt: bytes = b'',
+        legacy: bool = False,
     ) -> None:
         """Send status callback to a Service endpoint"""
-        try:
-            bearer_token: Any = decrypt(encrypted_token, salt or self._salt)
-        except RuntimeError:
-            # TODO: log and abort
-            pass
+        bearer_token: Any = None
 
-        try:
-            async for post_attempt in AsyncRetrying(
-                wait=self._retry_wait,
-                stop=self._retry_stop,
-                retry=self._retry_criteria,
-            ):
-                with post_attempt:
-                    async with self.client.post(
-                        url=str(url),
-                        json=payload,
-                        headers={
-                            'Content-Type': 'application/json',
-                            'Authorization': f'Bearer {bearer_token}',
-                        },
-                    ) as resp:
-                        # No need to async/await
-                        if resp.ok:
-                            print(f'callback processed by {url}')
-                        else:
-                            self._handle_not_ok_response(resp)
-        except RetryError as exc:
-            print(
-                f'Retried {url} - {exc.last_attempt.attempt_number} times. '
-                f'Raised {exc.__cause__.__class__.__name__} - {exc.__cause__}'
-            )
+        if legacy:
+            bearer_token = legacy_verify(encrypted_token, legacy_salt or self._legacy_salt)
+        else:
+            bearer_token = decrypt(encrypted_token)
 
-    def _handle_not_ok_response(self, resp: aiohttp.ClientResponse) -> None:
+        if bearer_token:
+            url_str = str(url)
+            try:
+                async for post_attempt in AsyncRetrying(
+                    wait=self._retry_wait,
+                    stop=self._retry_stop,
+                    retry=self._retry_criteria,
+                ):
+                    with post_attempt:
+                        async with self.client.post(
+                            url=url_str,
+                            json=payload,
+                            headers={
+                                'Content-Type': 'application/json',
+                                'Authorization': f'Bearer {bearer_token}',
+                            },
+                        ) as resp:
+                            # No need to async/await
+                            self._handle_response(resp, url_str)
+            except RetryError as exc:
+                print(
+                    f'Retried {url} - {exc.last_attempt.attempt_number} times. '
+                    f'Raised {exc.__cause__.__class__.__name__} - {exc.__cause__}'
+                )
+        else:
+            print(f'Unable to send callback to {url} due to invalid bearer_token generation')
+
+    def _handle_response(self, resp: aiohttp.ClientResponse, url: str) -> None:
         try:
             resp.raise_for_status()
+            print(f'callback processed by {url}')
         except aiohttp.ClientResponseError as exc:
             if resp.status >= 500 or resp.status in (408, 429):
                 # Retryable
                 raise
             else:
                 print(f'Non-retryable exception encountered: {exc}')
-
-
-callback_client = CallbackAsyncClient()
