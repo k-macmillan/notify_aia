@@ -1,5 +1,5 @@
 # naia
-`naia`, or Notify Asynchronous Internal API is primarily used to send external http requests. 
+Notify Asynchronous Internal API is primarily used to send external http requests. 
 
 ## Purpose
 The "Notify" platforms across the globe ([CA](https://github.com/cds-snc/notification-api/blob/main/app/celery/service_callback_tasks.py), [UK](https://github.com/alphagov/notifications-api/blob/main/app/celery/service_callback_tasks.py), and the [US](https://github.com/department-of-veterans-affairs/notification-api/blob/master/app/celery/service_callback_tasks.py) for example) are using Celery to make external calls. In the US case they are also making [other](https://github.com/department-of-veterans-affairs/notification-api/blob/master/app/celery/lookup_va_profile_id_task.py) external [calls](https://github.com/department-of-veterans-affairs/notification-api/blob/master/app/celery/contact_information_tasks.py).
