@@ -14,16 +14,16 @@ from starlette.requests import Request
 from starlette.routing import BaseRoute
 
 from naia import __version__
-from naia.auth.encryption import init_encryption
+from naia.auth.encryption import init_encryption, t_byte_str, t_legacy_secret_key
 from naia.clients.async_client import AsyncClient
-from naia.clients.callback.processing import CallbackAsyncClient
 
 if TYPE_CHECKING:
     from contextlib import AbstractAsyncContextManager
 
     from fastapi.routing import APIRoute
 
-# from fastapi.applications import AppType
+    from naia.clients.callback.processing import CallbackAsyncClient
+
 AppType = TypeVar('AppType', bound='Naia')
 
 
@@ -124,11 +124,19 @@ class Naia(FastAPI):
 
     def initialize_app(
         self,
-        encryption: dict[str, Any],
+        encryption_keys: list[t_byte_str],
         callback_client: Optional[CallbackAsyncClient] = None,
+        routers: Optional[list[APIRouter]] = None,
+        encryption_legacy_key: Optional[t_legacy_secret_key] = '',
+        encryption_legacy_salt: Optional[t_byte_str] = '',
     ) -> 'Naia':
-        init_encryption(**encryption)
+        init_encryption(
+            b64_keys=encryption_keys,
+            legacy_key=encryption_legacy_key,
+            legacy_salt=encryption_legacy_salt,
+        )
         self._initialize_callback_client(callback_client)
+        self._initialize_routers(routers)
         return self
 
     def _initialize_callback_client(
@@ -136,6 +144,24 @@ class Naia(FastAPI):
         callback_client: Optional[CallbackAsyncClient] = None,
     ) -> None:
         if callback_client is None:
+            # Only import this if it's being used
+            from naia.clients.callback.processing import CallbackAsyncClient
+
             callback_client = CallbackAsyncClient()
+
         self.callback_client = callback_client
         self._async_clients.append(callback_client)
+
+    def _initialize_routers(
+        self,
+        routers: Optional[list[APIRouter]] = None,
+    ) -> None:
+        if routers is None:
+            # Only import this if it's being used
+            from naia.clients.callback.rest import callback_router, set_app
+
+            set_app(self)
+            routers = [callback_router]
+
+        for router in routers:
+            self.include_router(router)

@@ -1,14 +1,20 @@
+from __future__ import annotations
+
 import asyncio
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from fastapi import APIRouter, status
 from pydantic import UUID4, AnyUrl, AwareDatetime, BaseModel, UrlConstraints
 from typing_extensions import Annotated, Any
 
-from naia.application.application import app
 from naia.clients.callback.handlers import CallbackLoggingRoute
 
-EVENT_LOOP = None
+if TYPE_CHECKING:
+    from naia.naia import Naia
+
+
+_EVENT_LOOP = None
+_APP: Naia
 
 callback_router = APIRouter(
     prefix='/callback',
@@ -45,7 +51,7 @@ class RequestCallback(BaseModel):
         'json_schema_extra': {
             'examples': [
                 {
-                    'url': 'https://example.com/vanotify',
+                    'url': 'https://example.com',
                     'encrypted_token': 'eyJhIjoxMCwiaGVsbG8iOiJieWUiLCJteV9saXN0IjpbMiwzLDUsNywxMV19.H44dU0G4pa7Aom3EgAD1uVAhZUU',
                     'payload': {
                         'notification_id': '2dfc614b-6885-4f78-adf1-8ee4b8d2433b',
@@ -66,11 +72,16 @@ class ResponseCallback(BaseModel):
     message: str
 
 
+def set_app(app: Naia) -> None:
+    global _APP
+    _APP = app
+
+
 def get_event_loop() -> asyncio.AbstractEventLoop:
-    global EVENT_LOOP
-    if EVENT_LOOP is None:
-        EVENT_LOOP = asyncio.get_event_loop()
-    return EVENT_LOOP
+    global _EVENT_LOOP
+    if _EVENT_LOOP is None:
+        _EVENT_LOOP = asyncio.get_event_loop()
+    return _EVENT_LOOP
 
 
 @callback_router.post('/send', status_code=status.HTTP_202_ACCEPTED, summary='Send a callback')
@@ -80,7 +91,7 @@ async def send_callback(
 ) -> ResponseCallback:
     # Do not wait for the response
     get_event_loop().create_task(
-        app.callback_client.send_callback_request(
+        _APP.callback_client.send_callback_request(
             data.url,
             data.encrypted_token,
             data.payload,

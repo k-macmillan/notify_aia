@@ -1700,6 +1700,17 @@ files = [
 doc = ["reno", "sphinx", "tornado (>=4.5)"]
 
 [[package]]
+name = "types-ujson"
+version = "5.9.0.0"
+description = "Typing stubs for ujson"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "types-ujson-5.9.0.0.tar.gz", hash = "sha256:7e7042454dc7cd7f31b09c420d7caf36b93d30bdf4b8db93791bd0561713d017"},
+    {file = "types_ujson-5.9.0.0-py3-none-any.whl", hash = "sha256:f274fa604ed6317effcd1c424ef4cf292c3b0689cb118fb3180689d40ed1f4ed"},
+]
+
+[[package]]
 name = "typing-extensions"
 version = "4.11.0"
 description = "Backported and Experimental Type Hints for Python 3.8+"
@@ -2264,4 +2275,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "b5bb48da6d9bd09a56736149049feb4222698906543e39bb95f4fc9ad941d90b"
+content-hash = "272b4a8904a9d513343b2809119d078968978324e9c2ac7eb74c944544fdf112"

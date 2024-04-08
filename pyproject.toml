@@ -33,6 +33,7 @@ optional = true
 [tool.poetry.group.static_tools.dependencies]
 mypy = "*"
 ruff = "*"
+types-ujson = "*"
 
 # Any test involving external calls (boto3, requests, etc.)
 [tool.poetry.group.integration_test]

@@ -83,7 +83,7 @@ class CallbackAsyncClient(AsyncClient):
         url: HttpsUrl,
         encrypted_token: str,
         payload: RequestPayload,
-        legacy_salt: bytes = b'',
+        legacy_salt: bytes = b'itsdangerous',
         legacy: bool = False,
     ) -> None:
         """Send status callback to a Service endpoint"""
