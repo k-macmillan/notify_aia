@@ -9,9 +9,11 @@ from fastapi.routing import APIRoute
 
 class CallbackLoggingRoute(APIRoute):
     def get_route_handler(self) -> Callable[[Request], Coroutine[Any, Any, Union[Response, None]]]:  # type: ignore
+        """Defines custom handling"""
         original_route_handler = super().get_route_handler()
 
         async def custom_route_handler(request: Request) -> Union[Response, None]:
+            """Handles route pre and post handling"""
             status_code = None
             resp = None
             try:

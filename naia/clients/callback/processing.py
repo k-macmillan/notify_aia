@@ -45,7 +45,7 @@ class CallbackAsyncClient(AsyncClient):
         connector: Optional[aiohttp.TCPConnector] = None,
         timeout: Optional[aiohttp.ClientTimeout] = None,
     ) -> None:
-        self._legacy_salt: bytes = b''
+        self.legacy_salt: bytes = b'itsdangerous'
         super().__init__(connector=connector, timeout=timeout)
 
         # Intialize retry properties
@@ -57,40 +57,36 @@ class CallbackAsyncClient(AsyncClient):
         self,
         retry_criteria: Optional[retry_base] = None,
     ) -> None:
+        """Customize retry criteria"""
         self._retry_criteria = retry_criteria or _RETRY_CRITERIA
 
     def set_retry_stop(
         self,
         stop_criteria: Optional[stop_base] = None,
     ) -> None:
+        """Customize stop criteria"""
         self._retry_stop = stop_criteria or _RETRY_STOP
 
     def set_retry_wait(
         self,
         wait_criteria: Optional[wait_base] = None,
     ) -> None:
+        """Customize delay between retries"""
         self._retry_wait = wait_criteria or _RETRY_WAIT
-
-    def set_salt(
-        self,
-        salt: bytes,
-    ) -> None:
-        """Sets the salt parameter"""
-        self._legacy_salt = salt
 
     async def send_callback_request(
         self,
         url: HttpsUrl,
         encrypted_token: str,
         payload: RequestPayload,
-        legacy_salt: bytes = b'itsdangerous',
+        legacy_salt: bytes = b'',
         legacy: bool = False,
     ) -> None:
         """Send status callback to a Service endpoint"""
         bearer_token: Any = None
 
         if legacy:
-            bearer_token = legacy_verify(encrypted_token, legacy_salt or self._legacy_salt)
+            bearer_token = legacy_verify(encrypted_token, legacy_salt or self.legacy_salt)
         else:
             bearer_token = decrypt(encrypted_token)
 

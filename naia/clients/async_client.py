@@ -37,6 +37,7 @@ class AsyncClient(metaclass=ABCMeta):
 
     @property
     def client(self) -> aiohttp.ClientSession:
+        """Initializes a ClientSession if necessary and returns it"""
         # Creates the client if it does not exist
         if self._client is None or self._client.closed:
             self._client = aiohttp.ClientSession(

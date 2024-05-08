@@ -56,7 +56,10 @@ def legacy_verify(
     thing_to_decode: str,
     salt: Union[bytes, str] = '',
 ) -> Any:
-    """Decode a signed string into the original object it was created from"""
+    """Decode a signed string into the original object it was created from.
+
+    This is only signing, no encryption
+    """
     decoded: Any = ''
     try:
         decoded = _LEGACY_SERIALIZATION.loads(thing_to_decode, salt=salt or _LEGACY_SALT)

@@ -28,6 +28,8 @@ AppType = TypeVar('AppType', bound='Naia')
 
 
 class Naia(FastAPI):
+    """Wrapper around FastAPI to configure a naia app"""
+
     def __init__(
         self: AppType,
         *,
@@ -114,7 +116,11 @@ class Naia(FastAPI):
         )
 
     @asynccontextmanager
-    async def lifespan(self, app: FastAPI) -> AsyncGenerator[Any, Any]:
+    async def lifespan(
+        self,
+        app: FastAPI,
+    ) -> AsyncGenerator[Any, Any]:
+        """Handles cleaning up the app"""
         print('Starting app')
         yield
         # Clean up - test with kill -15 (SIGTERM)
@@ -130,6 +136,7 @@ class Naia(FastAPI):
         encryption_legacy_key: Optional[t_legacy_secret_key] = '',
         encryption_legacy_salt: Optional[t_byte_str] = '',
     ) -> 'Naia':
+        """Prepares the app with encryption, callback clients, and routers"""
         init_encryption(
             b64_keys=encryption_keys,
             legacy_key=encryption_legacy_key,
@@ -143,6 +150,7 @@ class Naia(FastAPI):
         self,
         callback_client: Optional[CallbackAsyncClient] = None,
     ) -> None:
+        """Initializes the default callback client or a custom one derived from CallbackAsyncClient"""
         if callback_client is None:
             # Only import this if it's being used
             from naia.clients.callback.processing import CallbackAsyncClient
@@ -156,6 +164,7 @@ class Naia(FastAPI):
         self,
         routers: Optional[list[APIRouter]] = None,
     ) -> None:
+        """Initializes the default callback router or accepts a custom FastAPI APIRouter object"""
         if routers is None:
             # Only import this if it's being used
             from naia.clients.callback.rest import callback_router, set_app
