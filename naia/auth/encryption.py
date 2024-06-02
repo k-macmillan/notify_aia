@@ -1,4 +1,4 @@
-from typing import Any, Iterable, Optional, Union
+from typing import Any, Iterable, List, Optional, Union
 
 from cryptography.fernet import Fernet, InvalidToken, MultiFernet
 from itsdangerous import URLSafeSerializer
@@ -13,25 +13,27 @@ _SYMMETRIC_ENCRYPTION: MultiFernet
 
 
 def init_encryption(
-    b64_keys: list[t_byte_str],
+    b64_keys: List[t_byte_str],
     legacy_key: Optional[t_legacy_secret_key] = '',
     legacy_salt: Optional[t_byte_str] = b'itsdangerous',
 ) -> None:
-    """Initializes 32 byte Fernet keys for encryption and sets the serializer and default salt if applicable"""
+    """Initializes 32 byte Fernet keys for encryption and sets the serializer and default salt if applicable
+    
+    Args:
+        b64_keys (List[t_byte_str]): url-safe encoded string or bytestring used for encryption
+        legacy_key: (Optional[t_legacy_secret_key]): key or keys for signing
+        legacy_salt: (Optional[t_byte_str]): salt used for signing
+    """
     global _SYMMETRIC_ENCRYPTION, _LEGACY_SALT, _LEGACY_SERIALIZATION
     # Makes key rotations less of a lift - Key rotation would be a separate, deliberate action against the data store
     try:
         _SYMMETRIC_ENCRYPTION = MultiFernet([Fernet(k) for k in b64_keys])
     except ValueError as exc:
-        if any([k for k in b64_keys if len(k) < 32]):
-            print('Keys must be 32 bytes')
-        # TODO: Version 2.0 begin using this warning, 3.0 remove it
-        # import warnings
-        # warnings.warn(
-        #     "Legacy salt/key are kept for backwards compatibility and will be deprecated in a future version",
-        #     DeprecationWarning,
-        # )
+        if not isinstance(b64_keys, List):
+            print(f'Invalid type passed : {exc}')
+            raise TypeError('Invalid type for b64_keys, must be list')
         print(f'Not using encryption - decrypt method unavailable: {exc}')
+        raise
 
     if legacy_key:
         _LEGACY_SERIALIZATION = URLSafeSerializer(secret_key=legacy_key, salt=legacy_salt)
