@@ -40,12 +40,17 @@ types-ujson = "*"
 optional = true
 [tool.poetry.group.integration_test.dependencies]
 pytest = "*"
+pytest-cov = "*"
+pytest-mock = "*"
+
 
 # Unit and internal integration white-box tests
 [tool.poetry.group.non_integration_test]
 optional = true
 [tool.poetry.group.non_integration_test.dependencies]
 pytest = "*"
+pytest-cov = "*"
+pytest-mock = "*"
 
 
 [tool.mypy]
