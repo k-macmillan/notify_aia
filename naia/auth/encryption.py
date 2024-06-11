@@ -18,7 +18,7 @@ def init_encryption(
     legacy_salt: Optional[t_byte_str] = b'itsdangerous',
 ) -> None:
     """Initializes 32 byte Fernet keys for encryption and sets the serializer and default salt if applicable
-    
+
     Args:
         b64_keys (List[t_byte_str]): url-safe encoded string or bytestring used for encryption
         legacy_key: (Optional[t_legacy_secret_key]): key or keys for signing
@@ -48,9 +48,9 @@ def decrypt(
     try:
         decrypted = (_SYMMETRIC_ENCRYPTION.decrypt(thing_to_decrypt)).decode()
     except (AttributeError, NameError) as exc:
-        print(f'init_encryption() must be called with `keys` set prior to decryption: {exc}')
+        raise RuntimeError(f'init_encryption() must be called with `keys` set prior to decryption: {exc}')
     except InvalidToken as exc:
-        print(f'Encryption.decrypt signature validation failed: {exc}')
+        raise ValueError(f'Encryption.decrypt signature validation failed: {exc}')
     return decrypted
 
 
@@ -66,7 +66,7 @@ def legacy_verify(
     try:
         decoded = _LEGACY_SERIALIZATION.loads(thing_to_decode, salt=salt or _LEGACY_SALT)
     except (AttributeError, NameError) as exc:
-        print(f'init_encryption() must be called prior to decryption: {exc}')
+        raise RuntimeError(f'init_encryption() must be called prior to decryption: {exc}')
     except BadSignature as exc:
-        print(f'Encryption.decrypt signature validation failed: {exc}')
+        raise ValueError(f'Encryption.decrypt signature validation failed: {exc}')
     return decoded
