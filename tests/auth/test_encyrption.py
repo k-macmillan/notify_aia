@@ -82,6 +82,30 @@ def test_wb_valid_decrypt_old_key():
     assert naia_encr.decrypt(enc_str) == test_str
 
 
+def test_ut_decrypt_with_missing_b64key():
+    naia_encr._SYMMETRIC_ENCRYPTION = None
+    with pytest.raises(RuntimeError) as exc:
+        naia_encr.decrypt('test')
+    assert 'init_encryption' in str(exc)
+
+
+def test_ut_decrypt_with_invalid_b64key():
+    keys = [
+        b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',
+        'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',
+    ]
+    old_key = b'ZjbHlxX4XyYDvmwuEMozeGeq05xOuzv2QJ9qrII7Lk4='
+    fk = Fernet(old_key)
+    enc_str = fk.encrypt('old key'.encode())
+
+    naia_encr.init_encryption(keys)
+    with pytest.raises(ValueError) as exc:
+        naia_encr.decrypt(enc_str)
+    # Ensure user understands the validation failed
+    assert 'validation failed' in str(exc)
+
+
+
 def test_wb_valid_legacy_key():
     key = [
         b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',
@@ -124,7 +148,7 @@ def test_ut_missing_legacy_key_for_legacy_verify(module_mocker):
     with pytest.raises(RuntimeError) as exc:
         naia_encr.legacy_verify('')
     # Ensure user is pointed to init_encryption
-    assert 'init_encryption()' in str(exc)
+    assert 'init_encryption' in str(exc)
 
 
 def test_ut_legacy_verify_invalid_signature():
