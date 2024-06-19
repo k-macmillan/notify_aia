@@ -5,16 +5,32 @@ from itsdangerous import URLSafeSerializer
 import naia.auth.encryption as naia_encr
 
 
-def test_wb_init_encryption_valid_b64():
+@pytest.mark.parametrize('bytes_keys', [
+    [b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=', b'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',],
+    (b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=', b'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',),
+    {b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=', b'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',},
+])
+def test_wb_init_encryption_valid_bytes_b64(bytes_keys) -> None:
+    naia_encr.init_encryption(bytes_keys)
+
+
+@pytest.mark.parametrize('str_keys', [
+    ['YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=', 'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',],
+    ('YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=', 'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',),
+    {'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=', 'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',},
+])
+def test_wb_init_encryption_valid_str_b64(str_keys) -> None:
+    naia_encr.init_encryption(str_keys)
+
+
+def test_wb_init_encryption_valid_legacy() -> None:
     # byte and string url_encoded are accepted
     keys = [
         b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',
         'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',
     ]
-    naia_encr.init_encryption(keys)
+    naia_encr.init_encryption(keys, b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=')
 
-
-def test_wb_init_encryption_valid_legacy():
     # byte and string url_encoded are accepted
     keys = [
         b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',
@@ -23,7 +39,7 @@ def test_wb_init_encryption_valid_legacy():
     naia_encr.init_encryption(keys, b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=')
 
 
-def test_ut_init_encryption_invalid_too_short():
+def test_ut_init_encryption_invalid_too_short() -> None:
     not_long_enough = [
         'Nzc3Nzc3Nzc3Nzc3Nzc3Nw==',
     ]
@@ -31,7 +47,7 @@ def test_ut_init_encryption_invalid_too_short():
         naia_encr.init_encryption(not_long_enough)
 
 
-def test_ut_init_encryption_invalid_not_url_encoded():
+def test_ut_init_encryption_invalid_not_url_encoded() -> None:
     not_url_encoded = [
         '&*?-' * 8,
     ]
@@ -39,7 +55,7 @@ def test_ut_init_encryption_invalid_not_url_encoded():
         naia_encr.init_encryption(not_url_encoded)
 
 
-def test_ut_init_encryption_invalid_not_iterable():
+def test_ut_init_encryption_invalid_not_iterable() -> None:
     # Valid key, but is not a list
     not_a_list = 'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY='
     with pytest.raises(TypeError) as exc:
@@ -47,7 +63,7 @@ def test_ut_init_encryption_invalid_not_iterable():
     assert 'list' in str(exc)
 
 
-def test_ut_init_encryption_invalid_legacy_type():
+def test_ut_init_encryption_invalid_legacy_type() -> None:
     keys = [
         b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',
         'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',
@@ -56,7 +72,7 @@ def test_ut_init_encryption_invalid_legacy_type():
         naia_encr.init_encryption(keys, 1234)
 
 
-def test_wb_valid_decrypt_first_key():
+def test_wb_valid_decrypt_first_key() -> None:
     keys = [
         b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',
         'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',
@@ -69,7 +85,7 @@ def test_wb_valid_decrypt_first_key():
     assert naia_encr.decrypt(enc_str) == test_str
 
 
-def test_wb_valid_decrypt_old_key():
+def test_wb_valid_decrypt_old_key() -> None:
     keys = [
         b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',
         'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',
@@ -82,14 +98,14 @@ def test_wb_valid_decrypt_old_key():
     assert naia_encr.decrypt(enc_str) == test_str
 
 
-def test_ut_decrypt_with_missing_b64key():
+def test_ut_decrypt_with_missing_b64key() -> None:
     naia_encr._SYMMETRIC_ENCRYPTION = None
     with pytest.raises(RuntimeError) as exc:
         naia_encr.decrypt('test')
     assert 'init_encryption' in str(exc)
 
 
-def test_ut_decrypt_with_invalid_b64key():
+def test_ut_decrypt_with_invalid_b64key() -> None:
     keys = [
         b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',
         'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',
@@ -106,7 +122,7 @@ def test_ut_decrypt_with_invalid_b64key():
 
 
 
-def test_wb_valid_legacy_key():
+def test_wb_valid_legacy_key() -> None:
     key = [
         b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',
     ]
@@ -120,7 +136,7 @@ def test_wb_valid_legacy_key():
     assert naia_encr.legacy_verify(signed) == test_str
 
 
-def test_wb_valid_legacy_old_key():
+def test_wb_valid_legacy_old_key() -> None:
     key = [
         b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',
     ]
@@ -137,7 +153,7 @@ def test_wb_valid_legacy_old_key():
     assert naia_encr.legacy_verify(signed) == test_str
 
 
-def test_ut_missing_legacy_key_for_legacy_verify(module_mocker):
+def test_ut_missing_legacy_key_for_legacy_verify(module_mocker) -> None:
     key = [
         b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',
     ]
@@ -151,7 +167,7 @@ def test_ut_missing_legacy_key_for_legacy_verify(module_mocker):
     assert 'init_encryption' in str(exc)
 
 
-def test_ut_legacy_verify_invalid_signature():
+def test_ut_legacy_verify_invalid_signature() -> None:
     key = [
         b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',
     ]
