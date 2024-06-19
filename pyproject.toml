@@ -32,6 +32,7 @@ mkdocs-literate-nav = "*"
 optional = true
 [tool.poetry.group.static_tools.dependencies]
 mypy = "*"
+pytest = "*"
 ruff = "*"
 types-ujson = "*"
 
