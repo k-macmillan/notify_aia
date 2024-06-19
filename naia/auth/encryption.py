@@ -41,7 +41,7 @@ def init_encryption(
 
 
 def decrypt(
-    thing_to_decrypt: str,
+    thing_to_decrypt: t_bytes_str,
 ) -> str:
     """Decrypts a string into the original object it was created from"""
     decrypted: str = ''
@@ -55,8 +55,8 @@ def decrypt(
 
 
 def legacy_verify(
-    thing_to_decode: str,
-    salt: Union[bytes, str] = '',
+    thing_to_decode: t_bytes_str,
+    salt: t_bytes_str = '',
 ) -> Any:
     """Decode a signed string into the original object it was created from.
 

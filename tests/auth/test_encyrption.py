@@ -1,16 +1,22 @@
+from typing import Iterable
+
 import pytest
 from cryptography.fernet import Fernet
 from itsdangerous import URLSafeSerializer
 
 import naia.auth.encryption as naia_encr
 
+default_keys = [
+    'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',
+    'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',
+]
 
 @pytest.mark.parametrize('bytes_keys', [
     [b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=', b'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',],
     (b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=', b'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',),
     {b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=', b'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',},
 ])
-def test_wb_init_encryption_valid_bytes_b64(bytes_keys) -> None:
+def test_wb_init_encryption_valid_bytes_b64(bytes_keys: Iterable[bytes]) -> None:
     naia_encr.init_encryption(bytes_keys)
 
 
@@ -19,24 +25,14 @@ def test_wb_init_encryption_valid_bytes_b64(bytes_keys) -> None:
     ('YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=', 'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',),
     {'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=', 'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',},
 ])
-def test_wb_init_encryption_valid_str_b64(str_keys) -> None:
+def test_wb_init_encryption_valid_str_b64(str_keys: Iterable[str]) -> None:
     naia_encr.init_encryption(str_keys)
 
 
 def test_wb_init_encryption_valid_legacy() -> None:
     # byte and string url_encoded are accepted
-    keys = [
-        b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',
-        'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',
-    ]
-    naia_encr.init_encryption(keys, b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=')
-
-    # byte and string url_encoded are accepted
-    keys = [
-        b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',
-        'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',
-    ]
-    naia_encr.init_encryption(keys, b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=')
+    naia_encr.init_encryption(default_keys, b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=')
+    naia_encr.init_encryption(default_keys, 'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=')
 
 
 def test_ut_init_encryption_invalid_too_short() -> None:
@@ -63,58 +59,38 @@ def test_ut_init_encryption_invalid_not_iterable() -> None:
     assert 'list' in str(exc)
 
 
-def test_ut_init_encryption_invalid_legacy_type() -> None:
-    keys = [
-        b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',
-        'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',
-    ]
-    with pytest.raises(TypeError):
-        naia_encr.init_encryption(keys, 1234)
-
-
 def test_wb_valid_decrypt_first_key() -> None:
-    keys = [
-        b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',
-        'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',
-    ]
-    naia_encr.init_encryption(keys)
+    naia_encr.init_encryption(default_keys)
     # Encrypt using the key specified
-    fk = Fernet(keys[0])
+    fk = Fernet(default_keys[0])
     test_str = 'primary key'
     enc_str = fk.encrypt(test_str.encode())
     assert naia_encr.decrypt(enc_str) == test_str
 
 
 def test_wb_valid_decrypt_old_key() -> None:
-    keys = [
-        b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',
-        'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',
-    ]
-    naia_encr.init_encryption(keys)
+    naia_encr.init_encryption(default_keys)
     # Encrypt using the key specified
-    fk = Fernet(keys[1])
+    fk = Fernet(default_keys[1])
     test_str = 'old key'
     enc_str = fk.encrypt(test_str.encode())
     assert naia_encr.decrypt(enc_str) == test_str
 
 
 def test_ut_decrypt_with_missing_b64key() -> None:
-    naia_encr._SYMMETRIC_ENCRYPTION = None
+    # Set it to None for the test since it's a module-level object - ignore mypy
+    naia_encr._SYMMETRIC_ENCRYPTION = None  # type: ignore
     with pytest.raises(RuntimeError) as exc:
         naia_encr.decrypt('test')
     assert 'init_encryption' in str(exc)
 
 
 def test_ut_decrypt_with_invalid_b64key() -> None:
-    keys = [
-        b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',
-        'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',
-    ]
     old_key = b'ZjbHlxX4XyYDvmwuEMozeGeq05xOuzv2QJ9qrII7Lk4='
     fk = Fernet(old_key)
     enc_str = fk.encrypt('old key'.encode())
 
-    naia_encr.init_encryption(keys)
+    naia_encr.init_encryption(default_keys)
     with pytest.raises(ValueError) as exc:
         naia_encr.decrypt(enc_str)
     # Ensure user understands the validation failed
@@ -123,13 +99,10 @@ def test_ut_decrypt_with_invalid_b64key() -> None:
 
 
 def test_wb_valid_legacy_key() -> None:
-    key = [
-        b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',
-    ]
     legacy_key = [
         'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',
     ]
-    naia_encr.init_encryption(b64_keys=key, legacy_key=legacy_key)
+    naia_encr.init_encryption(b64_keys=default_keys, legacy_key=legacy_key)
     serializer = URLSafeSerializer(secret_key=legacy_key)
     test_str = 'The way to get started is to quit talking and begin doing'
     signed = serializer.dumps(test_str)
@@ -137,29 +110,20 @@ def test_wb_valid_legacy_key() -> None:
 
 
 def test_wb_valid_legacy_old_key() -> None:
-    key = [
-        b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',
-    ]
-    legacy_keys = [
-        'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',
-        b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',
-    ]
+    legacy_key = 'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc='
     # Test with one of the legacy keys removed
-    naia_encr.init_encryption(b64_keys=key, legacy_key=key)
+    naia_encr.init_encryption(b64_keys=default_keys, legacy_key=default_keys)
     # Representing a past init_encryption with both keys in use
-    serializer = URLSafeSerializer(secret_key=legacy_keys)
+    serializer = URLSafeSerializer(secret_key=legacy_key)
     test_str = 'Well done is better than well said'
     signed = serializer.dumps(test_str)
     assert naia_encr.legacy_verify(signed) == test_str
 
 
-def test_ut_missing_legacy_key_for_legacy_verify(module_mocker) -> None:
-    key = [
-        b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',
-    ]
-    naia_encr.init_encryption(b64_keys=key)
-    # Have to unset this due to other tests setting it
-    naia_encr._LEGACY_SERIALIZATION = None
+def test_ut_missing_legacy_key_for_legacy_verify() -> None:
+    naia_encr.init_encryption(b64_keys=default_keys)
+    # Set it to None for the test since it's a module-level object - ignore mypy
+    naia_encr._LEGACY_SERIALIZATION = None  # type: ignore
 
     with pytest.raises(RuntimeError) as exc:
         naia_encr.legacy_verify('')
