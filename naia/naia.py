@@ -14,7 +14,7 @@ from starlette.requests import Request
 from starlette.routing import BaseRoute
 
 from naia import __version__
-from naia.auth.encryption import init_encryption, t_byte_str, t_legacy_secret_key
+from naia.auth.encryption import init_encryption, t_bytes_str, t_secret_key
 from naia.clients.async_client import AsyncClient
 
 if TYPE_CHECKING:
@@ -130,11 +130,11 @@ class Naia(FastAPI):
 
     def initialize_app(
         self,
-        encryption_keys: list[t_byte_str],
+        encryption_keys: list[t_bytes_str],
         callback_client: Optional[CallbackAsyncClient] = None,
         routers: Optional[list[APIRouter]] = None,
-        encryption_legacy_key: Optional[t_legacy_secret_key] = '',
-        encryption_legacy_salt: Optional[t_byte_str] = '',
+        encryption_legacy_key: Optional[t_secret_key] = '',
+        encryption_legacy_salt: Optional[t_bytes_str] = '',
     ) -> 'Naia':
         """Prepares the app with encryption, callback clients, and routers"""
         init_encryption(

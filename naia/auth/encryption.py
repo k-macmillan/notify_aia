@@ -4,25 +4,25 @@ from cryptography.fernet import Fernet, InvalidToken, MultiFernet
 from itsdangerous import URLSafeSerializer
 from itsdangerous.exc import BadSignature
 
-t_byte_str = Union[bytes, str]
-t_legacy_secret_key = Union[Iterable[t_byte_str], t_byte_str]
+t_bytes_str = Union[bytes, str]
+t_secret_key = Union[t_bytes_str, Iterable[bytes], Iterable[str]]
 
-_LEGACY_SALT: Optional[t_byte_str]
+_LEGACY_SALT: Optional[t_bytes_str]
 _LEGACY_SERIALIZATION: URLSafeSerializer
 _SYMMETRIC_ENCRYPTION: MultiFernet
 
 
 def init_encryption(
-    b64_keys: List[t_byte_str],
-    legacy_key: Optional[t_legacy_secret_key] = '',
-    legacy_salt: Optional[t_byte_str] = b'itsdangerous',
+    b64_keys: Iterable[t_bytes_str],
+    legacy_key: Optional[t_secret_key] = '',
+    legacy_salt: Optional[t_bytes_str] = b'itsdangerous',
 ) -> None:
     """Initializes 32 byte Fernet keys for encryption and sets the serializer and default salt if applicable
 
     Args:
-        b64_keys (List[t_byte_str]): url-safe encoded string or bytestring used for encryption
-        legacy_key: (Optional[t_legacy_secret_key]): key or keys for signing
-        legacy_salt: (Optional[t_byte_str]): salt used for signing
+        b64_keys (List[t_bytes_str]): url-safe encoded string or bytestring used for encryption
+        legacy_key: (Optional[t_secret_key]): key or keys for signing
+        legacy_salt: (Optional[t_bytes_str]): salt used for signing
     """
     global _SYMMETRIC_ENCRYPTION, _LEGACY_SALT, _LEGACY_SERIALIZATION
     # Makes key rotations less of a lift - Key rotation would be a separate, deliberate action against the data store
