@@ -11,20 +11,45 @@ default_keys = [
     'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',
 ]
 
-@pytest.mark.parametrize('bytes_keys', [
-    [b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=', b'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',],
-    (b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=', b'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',),
-    {b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=', b'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',},
-])
+
+@pytest.mark.parametrize(
+    'bytes_keys',
+    [
+        [
+            b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',
+            b'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',
+        ],
+        (
+            b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',
+            b'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',
+        ),
+        {
+            b'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',
+            b'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',
+        },
+    ],
+)
 def test_wb_init_encryption_valid_bytes_b64(bytes_keys: Iterable[bytes]) -> None:
     naia_encr.init_encryption(bytes_keys)
 
 
-@pytest.mark.parametrize('str_keys', [
-    ['YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=', 'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',],
-    ('YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=', 'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',),
-    {'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=', 'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',},
-])
+@pytest.mark.parametrize(
+    'str_keys',
+    [
+        [
+            'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',
+            'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',
+        ],
+        (
+            'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',
+            'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',
+        ),
+        {
+            'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',
+            'Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc=',
+        },
+    ],
+)
 def test_wb_init_encryption_valid_str_b64(str_keys: Iterable[str]) -> None:
     naia_encr.init_encryption(str_keys)
 
@@ -52,11 +77,9 @@ def test_ut_init_encryption_invalid_not_url_encoded() -> None:
 
 
 def test_ut_init_encryption_invalid_not_iterable() -> None:
-    # Valid key, but is not a list
-    not_a_list = 'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY='
-    with pytest.raises(TypeError) as exc:
-        naia_encr.init_encryption(not_a_list)
-    assert 'list' in str(exc)
+    with pytest.raises(TypeError, match='not iterable'):
+        # Ignoring mypy error to ensure this is handled
+        naia_encr.init_encryption(777)  # type: ignore
 
 
 def test_wb_valid_decrypt_first_key() -> None:
@@ -80,9 +103,8 @@ def test_wb_valid_decrypt_old_key() -> None:
 def test_ut_decrypt_with_missing_b64key() -> None:
     # Set it to None for the test since it's a module-level object - ignore mypy
     naia_encr._SYMMETRIC_ENCRYPTION = None  # type: ignore
-    with pytest.raises(RuntimeError) as exc:
+    with pytest.raises(RuntimeError, match='init_encryption'):
         naia_encr.decrypt('test')
-    assert 'init_encryption' in str(exc)
 
 
 def test_ut_decrypt_with_invalid_b64key() -> None:
@@ -91,11 +113,8 @@ def test_ut_decrypt_with_invalid_b64key() -> None:
     enc_str = fk.encrypt('old key'.encode())
 
     naia_encr.init_encryption(default_keys)
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='validation failed'):
         naia_encr.decrypt(enc_str)
-    # Ensure user understands the validation failed
-    assert 'validation failed' in str(exc)
-
 
 
 def test_wb_valid_legacy_key() -> None:
@@ -125,10 +144,8 @@ def test_ut_missing_legacy_key_for_legacy_verify() -> None:
     # Set it to None for the test since it's a module-level object - ignore mypy
     naia_encr._LEGACY_SERIALIZATION = None  # type: ignore
 
-    with pytest.raises(RuntimeError) as exc:
+    with pytest.raises(RuntimeError, match='init_encryption'):
         naia_encr.legacy_verify('')
-    # Ensure user is pointed to init_encryption
-    assert 'init_encryption' in str(exc)
 
 
 def test_ut_legacy_verify_invalid_signature() -> None:
@@ -141,7 +158,5 @@ def test_ut_legacy_verify_invalid_signature() -> None:
     signed = serializer.dumps('Life is a succession of lessons which must be lived to be understood')
 
     naia_encr.init_encryption(b64_keys=key, legacy_key=key)
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError, match='validation failed'):
         naia_encr.legacy_verify(signed)
-    # Ensure user understands the validation failed
-    assert 'validation failed' in str(exc)

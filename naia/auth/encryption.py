@@ -1,4 +1,4 @@
-from typing import Any, Iterable, List, Optional, Union
+from typing import Any, Iterable, Optional, Union
 
 from cryptography.fernet import Fernet, InvalidToken, MultiFernet
 from itsdangerous import URLSafeSerializer
@@ -26,14 +26,7 @@ def init_encryption(
     """
     global _SYMMETRIC_ENCRYPTION, _LEGACY_SALT, _LEGACY_SERIALIZATION
     # Makes key rotations less of a lift - Key rotation would be a separate, deliberate action against the data store
-    try:
-        _SYMMETRIC_ENCRYPTION = MultiFernet([Fernet(k) for k in b64_keys])
-    except ValueError as exc:
-        if not isinstance(b64_keys, List):
-            print(f'Invalid type passed : {exc}')
-            raise TypeError('Invalid type for b64_keys, must be list')
-        print(f'Not using encryption - decrypt method unavailable: {exc}')
-        raise
+    _SYMMETRIC_ENCRYPTION = MultiFernet([Fernet(k) for k in b64_keys])
 
     if legacy_key:
         _LEGACY_SERIALIZATION = URLSafeSerializer(secret_key=legacy_key, salt=legacy_salt)
