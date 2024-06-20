@@ -41,6 +41,7 @@ types-ujson = "*"
 optional = true
 [tool.poetry.group.integration_test.dependencies]
 pytest = "*"
+pytest-asyncio = "*"
 pytest-cov = "*"
 pytest-mock = "*"
 
