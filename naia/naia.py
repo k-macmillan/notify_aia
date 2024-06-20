@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING, Any, Callable, Coroutine, Dict, List, Mapping, Optional, Sequence, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, Coroutine, Dict, Iterable, List, Mapping, Optional, Sequence, TypeVar
 
 from fastapi import APIRouter, FastAPI, Response
 from fastapi.datastructures import Default
@@ -17,7 +17,7 @@ from naia import __version__
 from naia.auth.encryption import init_encryption, t_bytes_str, t_secret_key
 from naia.clients.async_client import AsyncClient
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from contextlib import AbstractAsyncContextManager
 
     from fastapi.routing import APIRoute
@@ -74,7 +74,7 @@ class Naia(FastAPI):
         **extra: Any,
     ) -> None:
         self.callback_client: CallbackAsyncClient
-        self._async_clients: list[AsyncClient] = []
+        self._async_clients: List[AsyncClient] = []
 
         super().__init__(
             debug=debug,
@@ -130,9 +130,9 @@ class Naia(FastAPI):
 
     def initialize_app(
         self,
-        encryption_keys: list[t_bytes_str],
+        encryption_keys: Iterable[t_bytes_str],
         callback_client: Optional[CallbackAsyncClient] = None,
-        routers: Optional[list[APIRouter]] = None,
+        routers: Optional[Iterable[APIRouter]] = None,
         encryption_legacy_key: Optional[t_secret_key] = '',
         encryption_legacy_salt: Optional[t_bytes_str] = '',
     ) -> 'Naia':
@@ -162,7 +162,7 @@ class Naia(FastAPI):
 
     def _initialize_routers(
         self,
-        routers: Optional[list[APIRouter]] = None,
+        routers: Optional[Iterable[APIRouter]] = None,
     ) -> None:
         """Initializes the default callback router or accepts a custom FastAPI APIRouter object"""
         if routers is None:
