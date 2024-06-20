@@ -19,17 +19,19 @@ class AsyncClient(metaclass=ABCMeta):
         timeout: Optional[aiohttp.ClientTimeout] = None,
     ) -> None:
         self._client: Optional[aiohttp.ClientSession] = None
-        self._default_timeout_total: int = 10
-        self._default_host_pool_size: int = 50
-        self._default_dns_cache_duration: int = 2 * 60
+        default_timeout_total: int = 10
+        default_host_pool_size: int = 50
+        default_dns_cache_duration: int = 2 * 60
 
         self.timeout = timeout or aiohttp.ClientTimeout(
-            total=self._default_timeout_total,
+            total=default_timeout_total,
         )
+        # TCPConnector fails with a deprecation warning if the event loop is not active. assert for lower envs
+        assert asyncio.get_running_loop() is not None
         self.connector = connector or aiohttp.TCPConnector(
             # Awaits a future in `connect` of aiohttp.connector.BaseConnector so one bad host does not block all
-            limit_per_host=self._default_host_pool_size,
-            ttl_dns_cache=self._default_dns_cache_duration,
+            limit_per_host=default_host_pool_size,
+            ttl_dns_cache=default_dns_cache_duration,
         )
 
     def __del__(self) -> None:
