@@ -16,9 +16,9 @@ if TYPE_CHECKING:
 @pytest.fixture()
 def callback_setup() -> APIRouter:
     callback_router = APIRouter(
-            prefix='/test',
-            route_class=CallbackLoggingRoute,
-        )
+        prefix='/test',
+        route_class=CallbackLoggingRoute,
+    )
 
     @callback_router.get('/', status_code=status.HTTP_200_OK)
     async def get_route() -> Dict[str, str]:

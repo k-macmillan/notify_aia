@@ -43,7 +43,9 @@ async def test_wb_initialize_app_callback_automatic_setup(get_app: Naia, enc_key
 
 
 @pytest.mark.asyncio
-async def test_wb_initialize_app_routers_automatic_setup(get_app: Naia, enc_key: Tuple[str], mocker: MockerFixture) -> None:
+async def test_wb_initialize_app_routers_automatic_setup(
+    get_app: Naia, enc_key: Tuple[str], mocker: MockerFixture
+) -> None:
     mock_routers = mocker.patch('naia.Naia.include_router')
     get_app.initialize_app(enc_key)
     # Should have one router (the default)
