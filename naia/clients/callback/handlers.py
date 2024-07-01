@@ -1,3 +1,5 @@
+"""Naia handlers module."""
+
 from time import monotonic
 from typing import Any, Callable, Coroutine, Union
 
@@ -9,12 +11,14 @@ from fastapi.routing import APIRoute
 
 
 class CallbackLoggingRoute(APIRoute):
+    """Simple custom route logging for callbacks."""
+
     def get_route_handler(self) -> Callable[[Request], Coroutine[Any, Any, Union[Response, None]]]:  # type: ignore
-        """Defines custom handling"""
+        """Define custom handling."""
         original_route_handler = super().get_route_handler()
 
         async def custom_route_handler(request: Request) -> Union[JSONResponse, Response, None]:
-            """Handles route pre and post handling"""
+            """Handle route pre and post handling."""
             status_code = None
             resp = None
             try:

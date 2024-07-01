@@ -1,3 +1,5 @@
+"""Naia encryption module."""
+
 from typing import Any, Iterable, Optional, Union
 
 from cryptography.fernet import Fernet, InvalidToken, MultiFernet
@@ -17,12 +19,18 @@ def init_encryption(
     legacy_key: Optional[t_secret_key] = '',
     legacy_salt: Optional[t_bytes_str] = b'itsdangerous',
 ) -> None:
-    """Initializes 32 byte Fernet keys for encryption and sets the serializer and default salt if applicable
+    """
+    Initialize 32 byte Fernet keys for encryption and sets the serializer and default salt if applicable.
 
     Args:
-        b64_keys (List[t_bytes_str]): url-safe encoded string or bytestring used for encryption
-        legacy_key: (Optional[t_secret_key]): key or keys for signing
-        legacy_salt: (Optional[t_bytes_str]): salt used for signing
+    ----
+        b64_keys: Iterable[t_bytes_str]
+            url-safe encoded string or bytestring used for encryption
+        legacy_key: Optional[t_secret_key]
+            key or keys for signing
+        legacy_salt: Optional[t_bytes_str]
+            salt used for signing
+
     """
     global _SYMMETRIC_ENCRYPTION, _LEGACY_SALT, _LEGACY_SERIALIZATION
     # Makes key rotations less of a lift - Key rotation would be a separate, deliberate action against the data store
@@ -36,7 +44,19 @@ def init_encryption(
 def decrypt(
     thing_to_decrypt: t_bytes_str,
 ) -> str:
-    """Decrypts a string into the original object it was created from"""
+    """
+    Decrypts a string into the original object it was created from.
+
+    Args:
+    ----
+        thing_to_decrypt: t_bytes_str
+            The object to be decrypted
+
+    Returns:
+    -------
+        str: The decrypted string
+
+    """
     decrypted: str = ''
     try:
         decrypted = (_SYMMETRIC_ENCRYPTION.decrypt(thing_to_decrypt)).decode()
@@ -51,9 +71,22 @@ def legacy_verify(
     thing_to_decode: t_bytes_str,
     salt: t_bytes_str = b'',
 ) -> Any:
-    """Decode a signed string into the original object it was created from.
+    """
+    Decode a signed string into the original object it was created from.
 
     This is only signing, no encryption
+
+    Args:
+    ----
+        thing_to_decode: t_bytes_str
+            The object to be decrypted
+        salt: t_bytes_str
+            The salt to use during this validation
+
+    Returns:
+    -------
+        Any: The verfiied object
+
     """
     decoded: Any = ''
     try:

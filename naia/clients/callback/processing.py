@@ -1,3 +1,5 @@
+"""Naia processing module."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Optional
@@ -37,7 +39,8 @@ _RETRY_WAIT = wait_random_exponential(
 
 
 class CallbackAsyncClient(AsyncClient):
-    """Make callbacks to Services
+    """
+    Make callbacks to Services.
 
     Instantiated to avoid event loop issues.
     https://docs.aiohttp.org/en/stable/faq.html#why-is-creating-a-clientsession-outside-of-an-event-loop-dangerous
@@ -48,6 +51,7 @@ class CallbackAsyncClient(AsyncClient):
         connector: Optional[aiohttp.TCPConnector] = None,
         timeout: Optional[aiohttp.ClientTimeout] = None,
     ) -> None:
+        """Initialize the class."""
         self.legacy_salt: bytes = b'itsdangerous'
         super().__init__(connector=connector, timeout=timeout)
 
@@ -60,21 +64,21 @@ class CallbackAsyncClient(AsyncClient):
         self,
         retry_criteria: Optional[retry_base] = None,
     ) -> None:
-        """Customize retry criteria"""
+        """Customize retry criteria."""
         self._retry_criteria = retry_criteria or _RETRY_CRITERIA
 
     def set_retry_stop(
         self,
         stop_criteria: Optional[stop_base] = None,
     ) -> None:
-        """Customize stop criteria"""
+        """Customize stop criteria."""
         self._retry_stop = stop_criteria or _RETRY_STOP
 
     def set_retry_wait(
         self,
         wait_criteria: Optional[wait_base] = None,
     ) -> None:
-        """Customize delay between retries"""
+        """Customize delay between retries."""
         self._retry_wait = wait_criteria or _RETRY_WAIT
 
     async def send_callback_request(
@@ -85,7 +89,7 @@ class CallbackAsyncClient(AsyncClient):
         legacy_salt: bytes = b'',
         legacy: bool = False,
     ) -> None:
-        """Send status callback to a Service endpoint"""
+        """Send status callback to a Service endpoint."""
         bearer_token: Any = None
 
         if legacy:
@@ -134,6 +138,7 @@ class CallbackAsyncClient(AsyncClient):
 
     @staticmethod
     def _convert_model(model: RequestPayload) -> dict[str, Any]:
+        """Convert fields that cannot be JSON serialized into serializable fields."""
         model_dict = model.model_dump()
         model_dict['notification_id'] = str(model_dict['notification_id'])
         model_dict['created_at'] = str(model_dict['created_at'])

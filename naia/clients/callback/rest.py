@@ -1,3 +1,5 @@
+"""Naia rest module."""
+
 from __future__ import annotations
 
 import asyncio
@@ -26,6 +28,8 @@ callback_router = APIRouter(
 
 
 class RequestPayload(BaseModel):
+    """Expected payload for a callback request."""
+
     notification_id: UUID4
     refererence: Optional[str] = None
     to: str
@@ -40,6 +44,8 @@ class RequestPayload(BaseModel):
 
 
 class RequestCallback(BaseModel):
+    """API spec for callback request."""
+
     url: HttpUrl
     encrypted_token: str
     payload: RequestPayload
@@ -49,7 +55,7 @@ class RequestCallback(BaseModel):
             'examples': [
                 {
                     'url': 'https://example.com',
-                    'encrypted_token': 'eyJhIjoxMCwiaGVsbG8iOiJieWUiLCJteV9saXN0IjpbMiwzLDUsNywxMV19.H44dU0G4pa7Aom3EgAD1uVAhZUU',
+                    'encrypted_token': 'eyJhIjoxMCwiaGVsbG8iOiJieWUiLCJteV9saXN0IjpbMiwzLDUsNywxMV19',
                     'payload': {
                         'notification_id': '2dfc614b-6885-4f78-adf1-8ee4b8d2433b',
                         'to': 'bob@gmail.com',
@@ -66,15 +72,19 @@ class RequestCallback(BaseModel):
 
 
 class ResponseCallback(BaseModel):
+    """Response to callback requests."""
+
     message: str
 
 
 def set_app(app: Naia) -> None:
+    """Set global app variable."""
     global _APP
     _APP = app
 
 
 def get_event_loop() -> asyncio.AbstractEventLoop:
+    """Set global event loop and return it."""
     global _EVENT_LOOP
     if _EVENT_LOOP is None:
         _EVENT_LOOP = asyncio.get_event_loop()
@@ -87,6 +97,7 @@ async def send_callback(
     background_tasks: BackgroundTasks,
     # api_key: str = Security(validate_admin_auth),
 ) -> ResponseCallback:
+    """Send a callback to the specified URL with a bearer token."""
     # Do not wait for the response
     background_tasks.add_task(
         _APP.callback_client.send_callback_request,
