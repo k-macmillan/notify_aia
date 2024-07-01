@@ -4,7 +4,7 @@ import pytest
 from cryptography.fernet import Fernet
 from itsdangerous import URLSafeSerializer
 
-import naia.auth.encryption as naia_encr
+import notify_aia.auth.encryption as naia_encr
 
 default_keys = [
     'YXNkZmFzZGZhc2RmYXNkZmFzZGZhc2RmYXNkZmFzZGY=',

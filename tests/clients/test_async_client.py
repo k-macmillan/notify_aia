@@ -1,7 +1,7 @@
 import aiohttp
 import pytest
 
-from naia.clients.async_client import AsyncClient
+from notify_aia.clients.async_client import AsyncClient
 
 
 @pytest.mark.asyncio

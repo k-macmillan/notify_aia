@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "naia"
+name = "notify_aia"
 version = "0.1.0"
 description = ""
 authors = ["Kyle MacMillan <kyle.w.macmillan@gmail.com>"]

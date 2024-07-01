@@ -16,13 +16,13 @@ from tenacity.retry import retry_base
 from tenacity.stop import stop_base
 from tenacity.wait import wait_base
 
-from naia.auth.encryption import decrypt, legacy_verify
-from naia.clients.async_client import AsyncClient
+from notify_aia.auth.encryption import decrypt, legacy_verify
+from notify_aia.clients.async_client import AsyncClient
 
 if TYPE_CHECKING:  # pragma: no cover
     from pydantic.networks import HttpUrl
 
-    from naia.clients.callback.rest import RequestPayload
+    from notify_aia.clients.callback.rest import RequestPayload
 
 
 _RETRY_CRITERIA = retry_if_exception_type(aiohttp.ClientResponseError)

@@ -3,10 +3,10 @@ from typing import Tuple
 import pytest
 from pytest_mock import MockerFixture
 
-from naia import Naia
-from naia.clients.async_client import AsyncClient
-from naia.clients.callback.processing import CallbackAsyncClient
-from naia.clients.callback.rest import callback_router
+from notify_aia import Naia
+from notify_aia.clients.async_client import AsyncClient
+from notify_aia.clients.callback.processing import CallbackAsyncClient
+from notify_aia.clients.callback.rest import callback_router
 
 
 def test_wb_empty_init(get_app: Naia) -> None:
@@ -46,7 +46,7 @@ async def test_wb_initialize_app_callback_automatic_setup(get_app: Naia, enc_key
 async def test_wb_initialize_app_routers_automatic_setup(
     get_app: Naia, enc_key: Tuple[str], mocker: MockerFixture
 ) -> None:
-    mock_routers = mocker.patch('naia.Naia.include_router')
+    mock_routers = mocker.patch('notify_aia.Naia.include_router')
     get_app.initialize_app(enc_key)
     # Should have one router (the default)
     mock_routers.assert_called_once()
@@ -68,7 +68,7 @@ async def test_ut_callback_manual_setup(get_app: Naia, enc_key: Tuple[str]) -> N
 
 @pytest.mark.asyncio
 async def test_ut_routers_automatic_setup(get_app: Naia, enc_key: Tuple[str], mocker: MockerFixture) -> None:
-    mock_routers = mocker.patch('naia.Naia.include_router')
+    mock_routers = mocker.patch('notify_aia.Naia.include_router')
     get_app.initialize_app(encryption_keys=enc_key)
     # Should have one router (the default)
     mock_routers.assert_called_once()
@@ -76,7 +76,7 @@ async def test_ut_routers_automatic_setup(get_app: Naia, enc_key: Tuple[str], mo
 
 @pytest.mark.asyncio
 async def test_ut_routers_manual_setup(get_app: Naia, enc_key: Tuple[str], mocker: MockerFixture) -> None:
-    mock_routers = mocker.patch('naia.Naia.include_router')
+    mock_routers = mocker.patch('notify_aia.Naia.include_router')
     get_app.initialize_app(encryption_keys=enc_key, routers=(callback_router,))
     # Should have one router (the default)
     mock_routers.assert_called_once()

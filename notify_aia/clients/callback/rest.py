@@ -9,10 +9,10 @@ from fastapi import APIRouter, BackgroundTasks, status
 from pydantic import UUID4, AwareDatetime, BaseModel, HttpUrl
 from typing_extensions import Any
 
-from naia.clients.callback.handlers import CallbackLoggingRoute
+from notify_aia.clients.callback.handlers import CallbackLoggingRoute
 
 if TYPE_CHECKING:  # pragma: no cover
-    from naia.naia import Naia
+    from notify_aia.naia import Naia
 
 
 _EVENT_LOOP = None

@@ -7,10 +7,10 @@ from fastapi import APIRouter, status
 from fastapi.exceptions import HTTPException
 from fastapi.testclient import TestClient
 
-from naia.clients.callback.handlers import CallbackLoggingRoute
+from notify_aia.clients.callback.handlers import CallbackLoggingRoute
 
 if TYPE_CHECKING:  # pragma: no cover
-    from naia import Naia
+    from notify_aia import Naia
 
 
 @pytest.fixture()

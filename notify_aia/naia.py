@@ -15,16 +15,16 @@ from starlette.middleware import Middleware
 from starlette.requests import Request
 from starlette.routing import BaseRoute
 
-from naia import __version__
-from naia.auth.encryption import init_encryption, t_bytes_str, t_secret_key
-from naia.clients.async_client import AsyncClient
+from notify_aia import __version__
+from notify_aia.auth.encryption import init_encryption, t_bytes_str, t_secret_key
+from notify_aia.clients.async_client import AsyncClient
 
 if TYPE_CHECKING:  # pragma: no cover
     from contextlib import AbstractAsyncContextManager
 
     from fastapi.routing import APIRoute
 
-    from naia.clients.callback.processing import CallbackAsyncClient
+    from notify_aia.clients.callback.processing import CallbackAsyncClient
 
 AppType = TypeVar('AppType', bound='Naia')
 
@@ -156,7 +156,7 @@ class Naia(FastAPI):
         """Initialize the default callback client or a custom one derived from CallbackAsyncClient."""
         if callback_client is None:
             # Only import this if it's being used
-            from naia.clients.callback.processing import CallbackAsyncClient
+            from notify_aia.clients.callback.processing import CallbackAsyncClient
 
             callback_client = CallbackAsyncClient()
 
@@ -170,7 +170,7 @@ class Naia(FastAPI):
         """Initialize the default callback router or accepts a custom FastAPI APIRouter object."""
         if routers is None:
             # Only import this if it's being used
-            from naia.clients.callback.rest import callback_router, set_app
+            from notify_aia.clients.callback.rest import callback_router, set_app
 
             set_app(self)
             routers = [callback_router]

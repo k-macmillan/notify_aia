@@ -6,8 +6,8 @@ import pytest
 from cryptography.fernet import Fernet
 from itsdangerous import URLSafeSerializer
 
-from naia import Naia
-from naia.clients.callback.rest import RequestPayload
+from notify_aia import Naia
+from notify_aia.clients.callback.rest import RequestPayload
 
 
 @pytest.fixture()

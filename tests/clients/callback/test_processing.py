@@ -4,10 +4,10 @@ from unittest.mock import MagicMock, patch
 import pytest
 from pydantic.networks import HttpUrl
 
-from naia.auth.encryption import t_secret_key
-from naia.clients.callback.processing import CallbackAsyncClient
-from naia.clients.callback.rest import RequestPayload
-from naia.naia import Naia
+from notify_aia.auth.encryption import t_secret_key
+from notify_aia.clients.callback.processing import CallbackAsyncClient
+from notify_aia.clients.callback.rest import RequestPayload
+from notify_aia.naia import Naia
 
 
 async def initialize_app(
@@ -34,7 +34,7 @@ def test_wb_init_callback_async_client_needs_event_loop() -> None:
 
 
 @pytest.mark.asyncio
-@patch('naia.clients.callback.processing.CallbackAsyncClient.client')
+@patch('notify_aia.clients.callback.processing.CallbackAsyncClient.client')
 async def test_wb_send_callback_request(
     mock_post: MagicMock,
     delivered_payload: RequestPayload,
@@ -55,7 +55,7 @@ async def test_wb_send_callback_request(
 
 
 @pytest.mark.asyncio
-@patch('naia.clients.callback.processing.CallbackAsyncClient.client')
+@patch('notify_aia.clients.callback.processing.CallbackAsyncClient.client')
 async def test_wb_send_callback_legacy_request(
     mock_post: MagicMock,
     delivered_payload: RequestPayload,

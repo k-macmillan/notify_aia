@@ -4,9 +4,9 @@ from unittest.mock import MagicMock, patch
 import pytest
 from fastapi.testclient import TestClient
 
-from naia.clients.callback import rest as naia_rest
-from naia.clients.callback.processing import CallbackAsyncClient
-from naia.naia import Naia
+from notify_aia.clients.callback import rest as naia_rest
+from notify_aia.clients.callback.processing import CallbackAsyncClient
+from notify_aia.naia import Naia
 
 
 @pytest.mark.asyncio
@@ -16,7 +16,7 @@ async def test_wb_get_event_loop() -> None:
 
 
 @pytest.mark.asyncio
-@patch('naia.clients.callback.processing.CallbackAsyncClient.client')
+@patch('notify_aia.clients.callback.processing.CallbackAsyncClient.client')
 async def test_wb_exercise_happy_path(
     mock_post: MagicMock,
     get_app: Naia,
