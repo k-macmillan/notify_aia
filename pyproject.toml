@@ -5,6 +5,7 @@ description = ""
 authors = ["Kyle MacMillan <kyle.w.macmillan@gmail.com>"]
 readme = "README.md"
 license = "MIT"
+homepage = "https://github.com/k-macmillan/notify_aia"
 
 
 [tool.poetry.dependencies]
