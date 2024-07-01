@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "notify_aia"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["Kyle MacMillan <kyle.w.macmillan@gmail.com>"]
 readme = "README.md"
