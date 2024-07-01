@@ -3,13 +3,13 @@ from __future__ import annotations
 import asyncio
 from typing import TYPE_CHECKING, Optional
 
-from fastapi import APIRouter, status
-from pydantic import UUID4, AnyUrl, AwareDatetime, BaseModel, UrlConstraints
-from typing_extensions import Annotated, Any
+from fastapi import APIRouter, BackgroundTasks, status
+from pydantic import UUID4, AwareDatetime, BaseModel, HttpUrl
+from typing_extensions import Any
 
 from naia.clients.callback.handlers import CallbackLoggingRoute
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from naia.naia import Naia
 
 
@@ -23,9 +23,6 @@ callback_router = APIRouter(
     responses={404: {'description': 'Not found'}},
     route_class=CallbackLoggingRoute,
 )
-
-
-HttpsUrl = Annotated[AnyUrl, UrlConstraints(allowed_schemes=['https'])]
 
 
 class RequestPayload(BaseModel):
@@ -43,7 +40,7 @@ class RequestPayload(BaseModel):
 
 
 class RequestCallback(BaseModel):
-    url: HttpsUrl
+    url: HttpUrl
     encrypted_token: str
     payload: RequestPayload
 
@@ -87,14 +84,14 @@ def get_event_loop() -> asyncio.AbstractEventLoop:
 @callback_router.post('/send', status_code=status.HTTP_202_ACCEPTED, summary='Send a callback')
 async def send_callback(
     data: RequestCallback,
+    background_tasks: BackgroundTasks,
     # api_key: str = Security(validate_admin_auth),
 ) -> ResponseCallback:
     # Do not wait for the response
-    get_event_loop().create_task(
-        _APP.callback_client.send_callback_request(
-            data.url,
-            data.encrypted_token,
-            data.payload,
-        )
+    background_tasks.add_task(
+        _APP.callback_client.send_callback_request,
+        url=data.url,
+        encrypted_token=data.encrypted_token,
+        payload=data.payload,
     )
     return ResponseCallback(message='Accepted')

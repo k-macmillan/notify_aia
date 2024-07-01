@@ -49,7 +49,7 @@ def decrypt(
 
 def legacy_verify(
     thing_to_decode: t_bytes_str,
-    salt: t_bytes_str = '',
+    salt: t_bytes_str = b'',
 ) -> Any:
     """Decode a signed string into the original object it was created from.
 

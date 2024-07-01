@@ -9,7 +9,7 @@ from fastapi.testclient import TestClient
 
 from naia.clients.callback.handlers import CallbackLoggingRoute
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from naia import Naia
 
 

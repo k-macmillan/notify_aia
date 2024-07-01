@@ -17,8 +17,11 @@ from tenacity.wait import wait_base
 from naia.auth.encryption import decrypt, legacy_verify
 from naia.clients.async_client import AsyncClient
 
-if TYPE_CHECKING:
-    from naia.clients.callback.rest import HttpsUrl, RequestPayload
+if TYPE_CHECKING:  # pragma: no cover
+    from pydantic.networks import HttpUrl
+
+    from naia.clients.callback.rest import RequestPayload
+
 
 _RETRY_CRITERIA = retry_if_exception_type(aiohttp.ClientResponseError)
 
@@ -76,7 +79,7 @@ class CallbackAsyncClient(AsyncClient):
 
     async def send_callback_request(
         self,
-        url: HttpsUrl,
+        url: HttpUrl,
         encrypted_token: str,
         payload: RequestPayload,
         legacy_salt: bytes = b'',
@@ -91,6 +94,7 @@ class CallbackAsyncClient(AsyncClient):
             bearer_token = decrypt(encrypted_token)
 
         if bearer_token:
+            dict_payload = self._convert_model(payload)
             url_str = str(url)
             try:
                 async for post_attempt in AsyncRetrying(
@@ -99,16 +103,16 @@ class CallbackAsyncClient(AsyncClient):
                     retry=self._retry_criteria,
                 ):
                     with post_attempt:
+                        print('Making post to: ', url_str)
                         async with self.client.post(
                             url=url_str,
-                            json=payload,
+                            json=dict_payload,
                             headers={
                                 'Content-Type': 'application/json',
                                 'Authorization': f'Bearer {bearer_token}',
                             },
                         ) as resp:
-                            # No need to async/await
-                            self._handle_response(resp, url_str)
+                            await self._handle_response(resp, url_str)
             except RetryError as exc:
                 print(
                     f'Retried {url} - {exc.last_attempt.attempt_number} times. '
@@ -117,13 +121,23 @@ class CallbackAsyncClient(AsyncClient):
         else:
             print(f'Unable to send callback to {url} due to invalid bearer_token generation')
 
-    def _handle_response(self, resp: aiohttp.ClientResponse, url: str) -> None:
+    async def _handle_response(self, resp: aiohttp.ClientResponse, url: str) -> None:
         try:
             resp.raise_for_status()
-            print(f'callback processed by {url}')
+            print(f'Response from {url}: {await resp.text()}')
         except aiohttp.ClientResponseError as exc:
             if resp.status >= 500 or resp.status in (408, 429):
                 # Retryable
                 raise
             else:
                 print(f'Non-retryable exception encountered: {exc}')
+
+    @staticmethod
+    def _convert_model(model: RequestPayload) -> dict[str, Any]:
+        model_dict = model.model_dump()
+        model_dict['notification_id'] = str(model_dict['notification_id'])
+        model_dict['created_at'] = str(model_dict['created_at'])
+        model_dict['completed_at'] = str(model_dict['completed_at'])
+        model_dict['sent_at'] = str(model_dict['sent_at'])
+
+        return model_dict
